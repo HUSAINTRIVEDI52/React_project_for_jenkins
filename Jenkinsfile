@@ -1,36 +1,43 @@
 pipeline {
-    // 1. Define the execution environment
+    // 1. Define the build agent
     agent {
         docker {
-            image 'node:18'
-            // This is the key fix for the permissions error.
-            // It runs the container as the root user.
+            // Use a lightweight and modern version of Node. 'alpine' images are smaller.
+            image 'node:20-alpine'
+            // CRITICAL FIX: Run the container as the root user to avoid permission errors
+            // when Jenkins mounts the workspace volume.
             args '-u root:root'
         }
     }
 
     stages {
-        // 2. Install dependencies securely and quickly
+        // 2. Install dependencies cleanly and reproducibly
         stage('Install Dependencies') {
             steps {
-                // Use 'npm ci' for CI environments. It's faster and more reliable
-                // than 'npm install' as it uses the package-lock.json.
+                echo 'Installing NPM dependencies...'
+                // Use 'npm ci' instead of 'npm install'. It's faster and safer for CI/CD
+                // because it installs exact versions from your package-lock.json file.
                 sh 'npm ci'
             }
         }
 
-        // 3. Run tests to ensure code quality
+        // 3. Run automated tests to ensure code quality
         stage('Run Tests') {
             steps {
-                // This command assumes you have a 'test' script in your package.json
-                sh 'npm test'
+                echo 'Running tests...'
+                // The '-- --watchAll=false' argument is crucial for Create React App.
+                // It tells the test runner to execute all tests once and then exit,
+                // instead of entering the interactive "watch" mode.
+                sh 'npm test -- --watchAll=false'
             }
         }
 
-        // 4. Create the production build
+        // 4. Build the production-ready application
         stage('Build Application') {
             steps {
-                // This command creates the optimized static files in the 'build' directory.
+                echo 'Building the React application...'
+                // This command bundles your app into static files for production.
+                // The output will be in the 'build' directory.
                 sh 'npm run build'
             }
         }
@@ -38,17 +45,19 @@ pipeline {
         // 5. Archive the build output for deployment
         stage('Archive Artifacts') {
             steps {
-                // This saves the contents of the 'build' directory as a build artifact
-                // that you can download or use in a later deployment stage.
+                echo 'Archiving the build directory...'
+                // This saves the entire 'build' folder as an artifact of this Jenkins job.
+                // You can then use this artifact in a separate deployment job.
                 archiveArtifacts artifacts: 'build/**', fingerprint: true
             }
         }
     }
 
-    // 6. Clean up the workspace after the pipeline finishes
+    // 6. Always clean up the workspace at the end
     post {
         always {
-            // cleanWs() cleans the workspace to ensure the next build is fresh.
+            echo 'Cleaning up the workspace...'
+            // This ensures that the next build starts in a completely clean environment.
             cleanWs()
         }
     }
