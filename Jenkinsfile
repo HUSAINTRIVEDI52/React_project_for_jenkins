@@ -1,28 +1,25 @@
 pipeline {
-    agent any
-    stages {
-       stage('Clean Workspace') {
-          steps {
-            deleteDir()
-         }
-      }
-        stage('Build') {
-            agent {
-                docker {
-                    image 'node:18-alpine'
-                    reuseNode true // Reuse the node for the next stages
-                }
-            }
+    agent {
+        docker { image 'node:18-alpine' }
+    }
 
+    stages {
+        stage('Clean Workspace') {
             steps {
-                sh '''
-                    ls -l
-                    node --version
-                    npm --version
-                     npm install --cache .npm --prefer-offline
-                    npm run build
-                    ls -l
-                '''
+                deleteDir()
+            }
+        }
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'npm install'
+                sh 'npm run build'
             }
         }
     }
