@@ -19,7 +19,7 @@ pipeline {
                     ls -l
                     node --version
                     npm --version
-                    sh npm install --cache .npm --prefer-offline
+                     npm install --cache .npm --prefer-offline
                     npm run build
                     ls -l
                 '''
