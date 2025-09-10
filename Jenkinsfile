@@ -45,14 +45,7 @@ pipeline {
         }
 
         // 5. Archive the build output for deployment
-        stage('Archive Artifacts') {
-            steps {
-                echo 'Archiving the build directory...'
-                // This saves the entire 'build' folder as an artifact of this Jenkins job.
-                // You can then use this artifact in a separate deployment job.
-                archiveArtifacts artifacts: 'build/**', fingerprint: true
-            }
-        }
+       
     }
 
     // 6. Always clean up the workspace at the end
