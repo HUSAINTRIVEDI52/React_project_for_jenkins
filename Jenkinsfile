@@ -2,15 +2,15 @@ pipeline {
 
     
     agent any
-     {
-        options{
+     
+        options {
             skipDefaultCheckout(true)
         }
         docker {
             image 'node:20-alpine'
             args '-u root:root'
         }
-    }
+    
 
     stages {
 
@@ -18,8 +18,8 @@ pipeline {
             steps{
                 checkout scm
             }
-
         }
+
         stage('Install Dependencies') {
             steps {
                 echo 'Installing NPM dependencies...'
@@ -33,7 +33,7 @@ pipeline {
                 sh 'npm test -- run'
             }
         }
-        */
+        
 
         stage('Build Application') {
             steps {
@@ -45,11 +45,5 @@ pipeline {
        
     }
 
-    post {
-        always {
-            echo 'Cleaning up the workspace...'
-            cleanWs()
-        }
-    }
 }
 
