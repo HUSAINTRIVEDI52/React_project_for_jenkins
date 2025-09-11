@@ -46,6 +46,7 @@ pipeline{
                 sh '''
                    
                     npm run test
+                    test -f dist/index.html
                 '''
             }
         }
