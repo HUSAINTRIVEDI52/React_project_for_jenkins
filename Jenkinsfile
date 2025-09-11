@@ -1,49 +1,30 @@
-pipeline {
-
-    
+pipeline{
     agent any
-     
-        options {
-            skipDefaultCheckout(true)
-        }
-        docker {
-            image 'node:20-alpine'
-            args '-u root:root'
-        }
-    
+    stages{
 
-    stages {
-
-        stage('Checkout using SCM'){
+        stage('Clean up code'){
             steps{
-                checkout scm
+                cleanWs()
+            }
+
+        stage('Build'){
+            agent{
+                docker{
+                    image 'node:22.11.0-alpine3.20'
+                    args '-u root'
+                    reuseNode true
+                }
+            }
+            steps{
+                sh '''
+                    ls -l
+                    node --version
+                    npm --version
+                    npm install
+                    npm run build
+                '''
             }
         }
-
-        stage('Install Dependencies') {
-            steps {
-                echo 'Installing NPM dependencies...'
-                sh 'npm ci'
-            }
         }
-
-        stage('Run Tests') {
-            steps {
-                echo 'Running tests...'
-                sh 'npm test -- run'
-            }
-        }
-        
-
-        stage('Build Application') {
-            steps {
-                echo 'Building the React application...'
-                sh 'npm run build'
-            }
-        }
-
-       
     }
-
 }
-
