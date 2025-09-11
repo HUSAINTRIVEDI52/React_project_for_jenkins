@@ -1,10 +1,18 @@
 pipeline{
     agent any
+    options{
+        skipDefaultCheckout(true)
+    }
     stages{
-
         stage('Clean up code'){
             steps{
                 cleanWs()
+            }
+        }
+
+        stage('Checkout using scm'){
+            steps{
+                checkout scm
             }
         }
         stage('Build'){
@@ -22,6 +30,7 @@ pipeline{
                     npm --version
                     npm install
                     npm run build
+                    ls -l
                 '''
             }
         }
