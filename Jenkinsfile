@@ -6,7 +6,7 @@ pipeline{
             steps{
                 cleanWs()
             }
-
+        }
         stage('Build'){
             agent{
                 docker{
@@ -27,4 +27,3 @@ pipeline{
         }
         }
     }
-}
